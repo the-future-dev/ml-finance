@@ -8,13 +8,14 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import load_model
 
-from shared import read_dataset, plot_results
+from shared import read_dataset, plot_results, evaluate_price_predictions, mean_abs_error
 
 # %%
 start = "2010-01-01"
 end = "2020-01-01"
 target_column_name = 'Adj Close'
-model_path = '../models/lstm_model/price_generator.h5'
+path_price_generator = '../models/lstm_model/price_generator.h5'
+path_bidirectional = '../models/lstm_model/bidirectional.h5'
 
 GS = read_dataset('../data/GS.csv', start, end)
 
@@ -72,34 +73,54 @@ print(f'b: {b[test_index]}')
 def build_model():
     """LSTM model"""
     model = keras.Sequential()
-    model.add(keras.layers.LSTM(256, input_shape=(train_data.shape[1], train_data.shape[2])))
+    model.add(keras.layers.LSTM(256, input_shape=(train_data.shape[1], train_data.shape[2]), return_sequences=False))
     model.add(keras.layers.Dense(1))
     return model
 
-def train_model(model, train_data, train_target, eval_data, eval_target, epochs=30, batch_size=256):
+def build_bidirectional_lstm():
+    """
+    Bidirectional LSTM model
+    --
+    Result: does not improve performance.
+    """
+    model = keras.Sequential()
+    model.add(keras.layers.Bidirectional(keras.layers.LSTM(128, input_shape=(train_data.shape[1], train_data.shape[2]))))
+    model.add(keras.layers.Dense(1))
+    return model
+
+def train_model(model, train_data, train_target, epochs=30, batch_size=256):
     model.compile(optimizer='adam', loss='mean_squared_error')
-    if (eval)
     model.fit(train_data, train_target, epochs=epochs, batch_size=batch_size, verbose=2)
 
 
 # %%
-epochs = 1000
+epochs = 100
 batch_size = 256
 
 ## GENERATE MODEL ##
 model = build_model()
-train_model(model, train_data, train_target, epochs, batch_size)
-# model.save(model_path)
+train_model(model, train_data, train_target, epochs=epochs, batch_size=batch_size)
+# model.save(path_bidirectional)
 
 ## LOAD MODEL ##
-# model = load_model(model_path)
+# model = load_model(path_price_generator)
 
 # %%
 # TESTing: DENORMALIZE TARGET AND PREDICTIONS ##
 price_predicted_array = scaler_target.inverse_transform(model.predict(test_data))
-price_actual_array = scaler_target.inverse_transform(test_target.reshape(-1, 1)).flatten()
+price_actual_array = scaler_target.inverse_transform(test_target).flatten()
 
 ## PLOTting ##
 plot_results(price_actual_array, price_predicted_array, target_column_name)
+
+# %%
+evaluate_price_predictions(scaler_target.inverse_transform(model.predict(test_data)).flatten(), scaler_target.inverse_transform(test_target).flatten())
+
+# %% [markdown]
+# # Final comment
+# evan if the price follows the graph the model cannot be used to make trading as the error is too hign.
+
+# %%
+mean_abs_error(scaler_target.inverse_transform(model.predict(test_data)), scaler_target.inverse_transform(test_target))
 
 
