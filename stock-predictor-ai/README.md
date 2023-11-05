@@ -1,32 +1,14 @@
-# Using advancements in AI to predict stock market movements.
+# Stock predictor.
 
 The objective of this repository is to create complete process for predicting stock price movements.
-
-We will use a Generative Adversial Network (**GAN**) with
-- **LSTM** (a type of Recurrent Neural Network) as generator
-- and a Convolutional Neural Network (**CNN**) as discriminator.
-
-Why we use GAN and specifically CNN as discriminator? Good question: there is a specific section on that later.
-
-We will get into greater detail for each step, but the most difficult part is the GAN: very tricy part of training a GA is gettting the right set of hyperparameters. For that reason we will use a Bayesian optimisation (along with Gaussian processes) and Reinforcement Learning (**RL**) for deciding when and how to change the GAN's hyperparameters (the exploration vs exploitation dilemma). In creating the reinforcement learning we will use the most recent advancements in the field such as Rainbow and PPO.
-
-
-We will use a lot of different types of input data. Along with the stock's historical trading data and technical indicators, we will use the newest advancements in NLP (using 'Bidirectional Embedding Representations from Transformers', BERT, sort of a transfer learning for NLP) to create sentiment analysis (as a source for fundamental analysis), Fourier transforms for extracting overall trend directions, Stacked autoencoders for identifying other high-level features, Eigen portfolios for finding correlated assets, autoregressive integrated moving average (ARIMA) for the stock function approximation, and many more, in order to capture as much information, patterns, dependencies, etc, as possible about the stock. As we all know, the more (data) the merrier. Predicting stock price movements is an extremely complex task, so the more we know about the stock (from different perspectives) the higher our changes are.
-
 
 ## 1. Introduction
 Accurately predicting the stock markets is a complex task as there are millions of events and pre-conditions for a particilar stock to move in a particular direction. So we need to be able to capture as many of these pre-conditions as possible. We also need make several important assumptions: 1) markets are not 100% random, 2) history repeats, 3) markets follow people's rational behavior, and 4) the markets are 'perfect'. 
 
-We will try to predict the price movements of Goldman Sachs (NYSE: GS). For the purpose, we will use daily closing price from January 1st, 2010 to December 31st, 2018 (seven years for training purposes and two years for validation purposes). We will use the terms 'Goldman Sachs' and 'GS' interchangeably.
+We will try to predict the price movements of Goldman Sachs (NYSE: GS). For the purpose, we will use daily closing price from January 1st, 2010 to December 31st, 2019 (seven years for training purposes and two years for validation purposes). We will use the terms 'Goldman Sachs' and 'GS' interchangeably.
 
-## Acknowledgement
-The structure idea implemented in the following repository is inspired by https://github.com/borisbanushev/stockpredictionai/.
-
-## 3. The Data
+## 2. The Data
 What affects whether GS's stock price will move up or down? We will start by incorporating as much information as possible and we will perform feature importance (meaning how indicative it is for the movement of GS) on every feature later on and decide whether we will use it.
-
-We will use daily data: 1585 days to train the various algorithms and redict the next 680 days (test data).
-
 
 Overview of each data type (*feature*):
 
@@ -34,15 +16,16 @@ Overview of each data type (*feature*):
 
 2. **Technical indicators** - a lot of investors follow technical indicators. We will include the most popular indicators as independent features. Among them - 7 and 21 days moving average, momentum, Bollinger bands, MACD.
 
-3. **Fundamental analysis** - A verty important feature indicating whether a stock might move up or down. There are two features that can be used in fundamental analysis:
+3. **Fundamental analysis** - TODO
+<!-- 3. **Fundamental analysis** - A verty important feature indicating whether a stock might move up or down. There are two features that can be used in fundamental analysis:
     1. Analysing the company performance using 10-K and 10-Q reports, analysing ROE and P/E, etc.
-    2. News - potentially news can idicate upcoming evnts that can potentially move the stock in certain direction. We will read all daily news for Goldman Sachs and extract whether the total sentiment about Goldman Sachs on that day is positive, neutral, or negative (as a score from 0 to 1). As many investors closely read the news and make investment decisions based (partially of course) on news, there is a somewhat high chance that if, say, the news for Goldman Sachs today are extremely positive the stock will surge tomorrow.
+    2. News - potentially news can idicate upcoming evnts that can potentially move the stock in certain direction. We will read all daily news for Goldman Sachs and extract whether the total sentiment about Goldman Sachs on that day is positive, neutral, or negative (as a score from 0 to 1). As many investors closely read the news and make investment decisions based (partially of course) on news, there is a somewhat high chance that if, say, the news for Goldman Sachs today are extremely positive the stock will surge tomorrow. -->
 
-For the purpose of creating accurate sentiment prediction we will use Neural Language Processing (NLP). We will use BERT - Google's recently announced NLP approach for transfer learning for sentiment classification stock news sentiment extraction.
+<!-- For the purpose of creating accurate sentiment prediction we will use Neural Language Processing (NLP). We will use BERT - Google's recently announced NLP approach for transfer learning for sentiment classification stock news sentiment extraction. -->
 
 4. **Fourier transforms** - Along with the daily closing price, we will create Fourier transforms in order to generalize several long- and short- term trends. Using these transforms we will eliminate a lot of noise (random walks) and create approximations of the real stock movement. Having trend approximations can help the LSTM network pick its prediction trends more accurately.
 
-5. **Autoregressive Integrated Moving Average** (ARIMA) - This was one of the most popular thecniques for predicting future values of time series data in pre-neutal network ages.
+5. **Autoregressive Integrated Moving Average** (ARIMA) - TODO - This was one of the most popular thecniques for predicting future values of time series data in pre-neutal network ages.
 
 6. **Stacked Autoencoders** - most of the before mentioned features were found by people after decades of research. But maybe we have missed something. Maybe there are hidden correlations that people cannot comprehend due to the normous amount of data pounts, events, assets, charts, etc. With stacked autoencoders (type of neural networks) we can use the power of computers and probably find new types of features that affect stock movements. Even though we will not be able to understand these features in human language, we will use them in the GAN.
 
