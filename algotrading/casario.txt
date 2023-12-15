@@ -1,0 +1,46 @@
+1) STRATEGIA SESSIONI - PINESCRIPT PER TRADINGVIEW
+
+//@version=5
+strategy("QTA - Strategia Londra-New York", overlay=true)
+
+lowerLow = ta.lowest(low, 6)
+if hour(time) == 7
+    strategy.entry("Long", strategy.long, limit=lowerLow)
+    
+if hour(time) == 15
+    strategy.close("Long")
+
+2) STRATEGIA COT REPORT - PINESCRIPT PER TRADINGVIEW
+
+//@version=5
+strategy("QTA - COT STRATEGIA NET NON COMMERCIALS", shorttitle="COT NET NON COMS", overlay=true)
+
+// Calcolo della posizione netta dei Non-Commercials
+_pos_noncoms_long = request.security("QUANDL:CFTC/099741_F_L_ALL|1", "W", close[1], lookahead=barmerge.lookahead_on)
+_pos_noncoms_short = request.security("QUANDL:CFTC/099741_F_L_ALL|2", "W", close[1], lookahead=barmerge.lookahead_on)
+
+net_noncom = _pos_noncoms_long - _pos_noncoms_short
+
+// Ingresso nella strategia basato sulla posizione netta
+if net_noncom > 0 
+    strategy.entry("buy", strategy.long)
+if net_noncom < 0 
+    strategy.entry("sell", strategy.short)
+
+// Visualizzazione dei dati
+plot(net_noncom, color = net_noncom > 0 ? color.green : color.red)
+hline(0.00)
+
+3) BIAS GBPUSD - EASYLANGUAGE/POWERLANGUAGE
+if dayofweek(date) = 4 then sellshort next bar at high limit;
+if openpositionprofit > 0 or dayofweek(date) = 5 then	setexitonclose;
+
+4) BREAKOUT EURUSD - EASYLANGUAGE/POWERLANGUAGE
+if close > highW(1) then sellshort next bar at low limit;
+SetExitOnClose;
+
+5) BREAKOUT VOLATILITA' - EASYLANGUAGE/POWERLANGUAGE
+if dayofweek(date) <> 5 and (high[1]-low[1]) > (high[2]-low[2]) and high[3]-low[3] > high[2]-low[2] then buy next bar at low limit;
+if dayofweek(date) = 5 then setexitonclose;
+setprofittarget_pt(250);
+
